@@ -1,15 +1,21 @@
-﻿using System.Linq;
+﻿using System.Collections.Specialized;
+using System.Linq;
 using Sitecore.Sites;
 
 namespace Sitecore.Support.XA.Foundation.Multisite.Providers
 {
   public class BackendSiteProvider : Sitecore.XA.Foundation.Multisite.Providers.BackendSiteProvider
   {
+    public override void Initialize(string name, NameValueCollection config)
+    {
+      base.Initialize(name, config);
+      _supportParentProviderName = config["inherits"] ?? string.Empty;
+    }
     public override Site GetSite(string siteName)
     {
-      if (ParentProvider != null)
+      if (SupportParentProvider != null)
       {
-        Site site = ParentProvider.GetSite(siteName);
+        Site site = SupportParentProvider.GetSite(siteName);
         if (site != null && IsMatch(site))
         {
           return site;
@@ -21,11 +27,21 @@ namespace Sitecore.Support.XA.Foundation.Multisite.Providers
     public override SiteCollection GetSites()
     {
       SiteCollection siteCollection = new SiteCollection();
-      if (ParentProvider != null)
+      if (SupportParentProvider != null)
       {
-        siteCollection.AddRange(ParentProvider.GetSites().Where(IsMatch));
+        siteCollection.AddRange(SupportParentProvider.GetSites().Where(IsMatch));
       }
       return siteCollection;
+    }
+
+    private string _supportParentProviderName;
+    private SiteProvider _supportParentProvider;
+    private SiteProvider SupportParentProvider
+    {
+      get
+      {
+        return _supportParentProvider ?? (_supportParentProvider = SiteManager.Providers[_supportParentProviderName]);
+      }
     }
   }
 }
