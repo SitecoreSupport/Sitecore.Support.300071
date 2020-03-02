@@ -9,14 +9,25 @@ namespace Sitecore.Support.XA.Foundation.Multisite.Providers
 {
     public class BackendSiteProvider : Sitecore.XA.Foundation.Multisite.Providers.BackendSiteProvider
     {
+        private string _supportParentProviderName;
+        private SiteProvider _supportParentProvider;
+        private SiteProvider SupportParentProvider
+        {
+            get
+            {
+                return _supportParentProvider ?? (_supportParentProvider = SiteManager.Providers[_supportParentProviderName]);
+            }
+        }
+
         public override void Initialize(string name, NameValueCollection config)
         {
             base.Initialize(name, config);
+            this._supportParentProviderName = config["inherits"] ?? string.Empty;
         }
 
         public override Site GetSite(string siteName)
         {
-            Site site = ParentProvider?.GetSite(siteName);
+            Site site = this.SupportParentProvider?.GetSite(siteName);
             if (site != null && IsMatch(site))
             {
                 ModifySiteProperties(site);
@@ -29,9 +40,9 @@ namespace Sitecore.Support.XA.Foundation.Multisite.Providers
         public override SiteCollection GetSites()
         {
             SiteCollection siteCollection = new SiteCollection();
-            if (ParentProvider != null)
+            if (this.SupportParentProvider != null)
             {
-                List<Site> list = ParentProvider.GetSites().Where(IsMatch).ToList();
+                List<Site> list = this.SupportParentProvider.GetSites().Where(IsMatch).ToList();
                 list.ForEach(ModifySiteProperties);
                 siteCollection.AddRange(list);
             }
