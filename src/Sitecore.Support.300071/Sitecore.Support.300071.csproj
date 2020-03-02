@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XA\Foundation\Multisite\Providers\BackendSiteProvider.cs" />
+    <Compile Include="XA\Foundation\Multisite\Providers\ServiceSiteProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Config\Include\zzz\Sitecore.Support.300071.config" />
